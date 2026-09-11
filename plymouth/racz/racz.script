@@ -1,0 +1,58 @@
+// =====================================
+// RACZ - Plymouth boot animation      =
+// Created by Congrak		       =
+// Github: https://github.com/Congrak  =
+// =====================================
+
+Window.SetBackgroundTopColor(0.0, 0.0, 0.0);
+Window.SetBackgroundBottomColor(0.0, 0.0, 0.0);
+
+// ==== ANIMATION ====
+
+num_frames = 37;
+
+fun frame_filename(n) {
+    if (n < 10) return "frame_00" + n + ".png";
+    if (n < 100) return "frame_0" + n + ".png";
+    return "frame_" + n + ".png";
+}
+
+my_image = Image(frame_filename(1));
+my_sprite = Sprite(my_image);
+my_sprite.SetX(Window.GetWidth() / 2 - my_image.GetWidth() / 2);
+my_sprite.SetY(Window.GetHeight() / 2 - my_image.GetHeight() / 2);
+
+current_frame = 1;
+
+fun refresh_callback() {
+    current_frame++;
+    if (current_frame > num_frames) current_frame = 1;
+    my_sprite.SetImage(Image(frame_filename(current_frame)));
+}
+
+//==== PROGRESS BAR =====
+
+progress_bar_width = 400;
+progress_bar_height = 8;
+
+progress_bar_bg_image = Image("bar_bg.png").Scale(progress_bar_width, progress_bar_height);
+progress_bar_bg_sprite = Sprite(progress_bar_bg_image);
+progress_bar_bg_sprite.SetX(Window.GetWidth() / 2 - progress_bar_width / 2);
+progress_bar_bg_sprite.SetY(my_sprite.GetY() + my_image.GetHeight() + 30);
+
+progress_bar_fill_sprite = Sprite();
+progress_bar_fill_sprite.SetX(progress_bar_bg_sprite.GetX());
+progress_bar_fill_sprite.SetY(progress_bar_bg_sprite.GetY());
+
+fun progress_callback(duration, progress) {
+    fill_width = progress_bar_width * progress;
+    if (fill_width < 1) fill_width = 1;
+    fill_image = Image("bar_white.png").Scale(fill_width, progress_bar_height);
+    progress_bar_fill_sprite.SetImage(fill_image);
+}
+
+Plymouth.SetBootProgressFunction(progress_callback);
+Plymouth.SetRefreshFunction(refresh_callback);
+Plymouth.SetRefreshRate(12);
+
+
