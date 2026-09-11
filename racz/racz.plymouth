@@ -1,8 +1,0 @@
-[Plymouth Theme]
-Name=RACZ
-Description=Custom RACZ boot animation
-ModuleName=script
-
-[script]
-ImageDir=/usr/share/plymouth/themes/racz
-ScriptFile=/usr/share/plymouth/themes/racz/racz.script
