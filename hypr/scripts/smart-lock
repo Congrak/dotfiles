@@ -1,0 +1,46 @@
+#! /bin/bash 
+
+# smart-lock - Script that checks if the browser is actively playing audio.
+# If the browser (Firefox, Chromium, Brave, etc.) has a real audio stream
+# playing (Corked: no), it respects it and does NOT trigger lock/sleep.
+# Otherwise (silence, or only Electron apps like Apple Music with their
+# own powerSaveBlocker faking activity), it locks the screen anyway.
+#
+# Note: we match on application.process.binary instead of application.name,
+# because Electron apps (e.g. Apple Music) report their underlying engine
+# ("Chromium") as application.name, which would cause false positives.
+# 
+# Create by Rodrigo Celis - Congrak
+# Github: https://github.com/Congrak
+#
+
+BROWSER_BINARIES=("firefox" "chromium-browser" "chromium" "google-chrome" "brave" "brave-browser")
+
+SHOULD_SKIP=false
+
+SINK_INFO=$(pactl list sink-inputs 2>/dev/null)
+
+awk '/^Sink Input #/{n++} {print > "/tmp/sinkblock_" n}' <<< "$SINK_INFO"
+
+for f in /tmp/sinkblock_*; do
+    [ -f "$f" ] || continue
+    BLOCK=$(cat "$f")
+
+    IS_CORKED_NO=$(echo "$BLOCK" | grep -qi "Corked: no" && echo yes)
+    BINARY=$(echo "$BLOCK" | grep -oP 'application\.process\.binary = "\K[^"]+')
+
+    if [ "$IS_CORKED_NO" = "yes" ]; then
+        for bin in "${BROWSER_BINARIES[@]}"; do
+            if [ "$BINARY" = "$bin" ]; then
+                SHOULD_SKIP=true
+            fi
+        done
+    fi
+done
+rm -f /tmp/sinkblock_*
+
+if [ "$SHOULD_SKIP" = true ]; then
+    exit 0
+else
+    pidof hyprlock || hyprlock
+fi

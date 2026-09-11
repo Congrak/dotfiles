@@ -1,0 +1,16 @@
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- RACZ - Hypr Autostart .lua 	                         --
+-- Created by Congrak   				 --
+-- Github: https://github.com/Congrak 			 --
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+-- Autostart necessary processes (like notifications daemons, status bars, etc.)
+-- Or execute your favorite apps at launch like this:
+--
+
+hl.on("hyprland.start", function ()
+ hl.exec_cmd("hyprpaper")
+ hl.exec_cmd("asusctl led set med")
+ hl.exec_cmd("ags run ~/.config/ags/app.ts")
+ hl.exec_cmd("hyprlock")
+end)
